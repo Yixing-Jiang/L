@@ -1,0 +1,66 @@
+x1 = [.1,.2,.4,.6,.9,1.3,1.5,1.7,1.8,1.9];
+y = [.75,1.25,1.45,1.25,.85,.55,.35,.28,.18,.2];
+y1 = log(y./x1);
+z = @(x) [1,x1(x)];
+
+%Part b
+disp ('Part b')
+a = leastsquares (z,x1,y1);
+alpha = exp(a(1));
+beta = a(2);
+disp ('Alpha: ')
+disp (alpha)
+disp ('Beta: ')
+disp (beta)
+
+%Part C\
+disp ('Part c')
+f = @(a) (sum((y-a(1)*x1.*exp(a(2).*x1)).^2));
+x2 = fminsearch (f,[alpha, beta]);
+disp ('Alpha: ')
+disp (x(1))
+disp ('Beta: ')
+disp (x(2))
+
+figure 
+plot (x1,y,'o')
+hold on
+plot (x1,(alpha.*x1).*(exp(beta.*x1)))
+plot (x1,(x2(1).*x1).*(exp(x2(2).*x1)))
+hold off
+
+function [a] = leastsquares (z, x1, y)
+    %Getting the number of columns x1 has
+    size = length(x1);
+
+    %Setting z1 equal to z(1) because I need the number of columns z has
+    z1=z(1);
+
+    %Getting the number of columns z has so I can make sure I make the ones
+    %matrix the right dimensions
+    size2 = length(z1);
+
+    %Creating a ones matrix the that has the same row as the number of
+    %columns x1 has and the same rumber of columns as z to form the
+    %dimensions of the z matrix
+    z0 = ones(size,size2);
+
+    %Looping through all of the rows of z0 so I can fill the z matrix row
+    %by row
+    for i = 1:size
+
+        %Setting the entire row to .* the z equation which prints z(x) onto
+        %each row
+        z0(i,:)= z0(i,:).*z(i);
+    end
+
+    %Calculating the A and the b values to form Ax= b and x is the
+    %variables we area trying to solve
+    A = (z0'*z0);
+    b = (z0'*y');
+
+    %Since now we area in Ax=b form, I can use the .m file function I had
+    %for LU decomposition combined with forward subsitution to solve for x
+    %which are the variables we are looking for
+    a = LU(A,b);
+end
